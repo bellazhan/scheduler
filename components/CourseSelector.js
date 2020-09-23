@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import { hasConflict } from '../utils/course';
 
-const CourseSelector = ({courses}) => {
+const CourseSelector = ({courses, view}) => {
     const [selected, setSelected] = useState([]);
 
     const toggle = course => setSelected(selected => (
@@ -20,6 +20,7 @@ const CourseSelector = ({courses}) => {
               isSelected={selected.includes(course)} 
               key={course.id}
               select={toggle}
+              view={view}
             />
           ))
         }

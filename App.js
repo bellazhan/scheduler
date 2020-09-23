@@ -1,45 +1,30 @@
-import CourseList from './components/CourseList';
-import React, {useEffect, useState} from 'react';
-import {SafeAreaView, StyleSheet, Text} from 'react-native';
+import 'react-native-gesture-handler';
+import React from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import CourseDetailScreen from './screens/CourseDetailScreen';
+import ScheduleScreen from './screens/ScheduleScreen';
+import Course from './components/Course';
 
-const Banner = ({title}) => (
-  <Text style={styles.bannerStyle}>{title || '[loading...]'}</Text>
-);
+const Stack = createStackNavigator();
 
 const App = () => {
-  const [schedule, setSchedule] = useState({ title: '', courses: [] });
-
-  const url = 'https://courses.cs.northwestern.edu/394/data/cs-courses.php';
-
-  useEffect(() => {
-    const fetchSchedule = async () => {
-      const response = await fetch(url);
-      if (!response.ok) throw response;
-      const json = await response.json();
-      setSchedule(json);
-    }
-    fetchSchedule();
-  }, [])
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <Banner title={schedule.title} />
-      <CourseList courses={schedule.courses} />
-    </SafeAreaView>
+  return(
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen 
+          component={ScheduleScreen}
+          name="ScheduleScreen" 
+          options={{title:'Schedule'}}
+        />
+        <Stack.Screen 
+          component={CourseDetailScreen}
+          name="CourseDetailScreen"
+          options={{title:'Course Detail'}}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  bannerStyle: {
-    color: '#888',
-    fontSize: 32,
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 20,
-  },
-});
+};
 
 export default App;
