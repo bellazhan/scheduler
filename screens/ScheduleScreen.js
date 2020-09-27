@@ -1,6 +1,7 @@
 import CourseList from "../components/CourseList";
 import CourseEditScreen from "./CourseEditScreen";
 import UserContext from "../UserContext";
+import firebase from "../firebase";
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView, StyleSheet, Text } from "react-native";
 
@@ -8,27 +9,32 @@ const Banner = ({ title }) => (
   <Text style={styles.bannerStyle}>{title || "[loading...]"}</Text>
 );
 
+const fixCourses = (json) => ({
+  ...json,
+  courses: Object.values(json.courses),
+});
+
 const ScheduleScreen = ({ navigation }) => {
   const user = useContext(UserContext);
   const [schedule, setSchedule] = useState({ title: "", courses: [] });
   const canEdit = user && user.role === "admin";
+
+  useEffect(() => {
+    const db = firebase.database().ref();
+    const handleData = (snap) => {
+      if (snap.val()) setSchedule(fixCourses(snap.val()));
+    };
+    db.on("value", handleData, (error) => alert(error));
+    return () => {
+      db.off("value", handleData);
+    };
+  }, []);
 
   const view = (course) => {
     navigation.navigate(canEdit ? "CourseEditScreen" : "CourseDetailScreen", {
       course,
     });
   };
-  const url = "https://courses.cs.northwestern.edu/394/data/cs-courses.php";
-
-  useEffect(() => {
-    const fetchSchedule = async () => {
-      const response = await fetch(url);
-      if (!response.ok) throw response;
-      const json = await response.json();
-      setSchedule(json);
-    };
-    fetchSchedule();
-  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
